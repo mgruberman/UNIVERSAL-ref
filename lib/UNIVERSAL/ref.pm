@@ -12,12 +12,12 @@ sub unimport {
     delete $hooked{ caller() };
 }
 
-our $VERSION = '0.01';
+our $VERSION = '0.02';
 use XSLoader;
 XSLoader::load( 'UNIVERSAL::ref', $VERSION );
 
 sub hook {
-    return $_[0]->ref;
+    return caller() eq 'overload' ? ref( $_[0] ) : $_[0]->ref;
 }
 
 q[Let's Make Love and Listen to Death From Above];
@@ -85,7 +85,7 @@ ambrus for the excellent idea to overload defined() to allow Perl 5 to
 have Perl 6's "interesting values of undef."
 
 chromatic for pointing out how utterly broken ref() is. This fix
-covers over its biggest hole.
+covers its biggest hole.
 
 =head1 AUTHOR
 
