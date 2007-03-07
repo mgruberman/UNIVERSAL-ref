@@ -35,16 +35,16 @@ use vars '$TESTS';
     package main;
 
     # Validate that ref() lies for us.
-    ::is( CORE::ref( bless [], 'LIAR' ), 'lie', 'Basic overloading' );
+    is( CORE::ref( bless [], 'LIAR' ), 'lie', 'Lying 101' );
 }
 
 {
     BEGIN { $TESTS += 3 }
 
     # Validate that ref() works as normal for non-hooked things.
-    is( ref(''), '', q[ref('')] );
-    is( ref( [] ), 'ARRAY', q[ref([])] );
-    is( ref( bless [], 'A1' ), 'A1', q[ref(obj)] );
+    is( ref(''), '', 'Ordinary things are ordinary 1' );
+    is( ref( [] ), 'ARRAY', 'Ordinary things are ordinary 2' );
+    is( ref( bless [], 'A1' ), 'A1', 'Ordinary things are ordinary 3' );
 }
 
 {
@@ -55,16 +55,17 @@ use vars '$TESTS';
     sub ref    {'blah blah blah'}
     sub myself { CORE::ref $_[0] }
 
-    ::is( bless( [], 'DELUSION' ), 'blah blah blah' );
-    ::is( bless( [], 'DELUSION' )->myself, 'DELUSION' );
+    package main;
+    is( ref( bless( [], 'DELUSION' ) ), 'blah blah blah', 'Self delusion 1' );
+    is( bless( [], 'DELUSION' )->myself, 'DELUSION', 'Self delusion 2' );
 }
 
 {
     BEGIN { $TESTS += 2 }
 
     package OVERLOADED;
-    sub ref {'NOT-OVERLOADED'}
-    use overload 'bool' => 'FALSE';
+    sub ref { warn; 'NOT-OVERLOADED' }
+    use overload 'bool' => sub () {'FALSE'};
     use UNIVERSAL::ref;
 
     package main;
@@ -73,7 +74,7 @@ use vars '$TESTS';
         'Overloaded objects still look overloaded' );
     like(
         overload::StrVal($obj),
-        qr/\A\QOVERLOADED::ARRAY=(0x\E[\da-fA-F]+\)\z/,
+        qr/\A\QOVERLOADED=ARRAY(0x\E[\da-fA-F]+\)\z/,
         'Overloaded objects stringify normally too'
     );
 }
@@ -86,8 +87,7 @@ use vars '$TESTS';
     sub ref {'PAST'}
 
     package main;
-    is( ref( bless [], 'PAST' ), 'lie',
-        'UNIVERSAL::ref fixes the past too.' );
+    is( ref( bless [], 'PAST' ), 'lie', 'I even fix the past' );
 }
 
 BEGIN { plan( tests => $TESTS ) }

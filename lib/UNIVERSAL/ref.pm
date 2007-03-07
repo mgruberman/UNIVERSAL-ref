@@ -2,7 +2,7 @@ package UNIVERSAL::ref;
 use warnings;
 use strict;
 
-use vars '%hooked';
+our %hooked = ( overload => undef );
 
 sub import {
     $hooked{ caller() } = undef;
@@ -12,12 +12,15 @@ sub unimport {
     delete $hooked{ caller() };
 }
 
-our $VERSION = '0.02';
+our $VERSION = '0.03';
 use XSLoader;
 XSLoader::load( 'UNIVERSAL::ref', $VERSION );
 
 sub hook {
-    return caller() eq 'overload' ? ref( $_[0] ) : $_[0]->ref;
+    return ref $_[0] if 'overload' eq caller;
+    return ref $_[0] if exists $hooked{ caller() };
+
+    return scalar $_[0]->ref;
 }
 
 q[Let's Make Love and Listen to Death From Above];

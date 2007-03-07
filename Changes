@@ -6,3 +6,6 @@ Revision history for UNIVERSAL::ref
 0.02    Mar 6, 2007
         Now with tests for overloading too. It doesn't pass tests but
         that's the point. I'd like the CPAN version to fail its tests.
+
+0.03    Mar 7, 2007
+        Hey, fixing this was easy!
