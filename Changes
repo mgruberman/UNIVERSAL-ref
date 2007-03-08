@@ -12,3 +12,6 @@ Revision history for UNIVERSAL::ref
 
 0.04    Mar 8, 2007
         Don't bother trying to do impossible things.
+
+0.05    Mar 8, 2007
+        Don't enable debugging output in production.

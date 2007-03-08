@@ -6,7 +6,7 @@ typedef OP	*B__OP;
 
 int init_done = 0;
 
-#if 1
+#if 0
 #define EVIL_REF_DEBUG(x) x
 #else
 #define EVIL_REF_DEBUG(x)
@@ -146,23 +146,20 @@ void evil_ref_fixupworld () {
              && (    &PL_compcv  == PL_savestack[i-1].any_ptr
                   || &PL_main_cv == PL_savestack[i-1].any_ptr )
              && PL_savestack[i-2].any_ptr ) {
-            printf("PL_compcv=%x\n", PL_savestack[i-2].any_ptr);
-            printf("  file=%s\n",CvFILE((CV*)(PL_savestack[i-2].any_ptr)));
-            printf("  root=%x\n",CvROOT((CV*)(PL_savestack[i-2].any_ptr)));
-            printf("  gv=%x\n",CvGV((CV*)(PL_savestack[i-2].any_ptr)));
-            printf("  xsubany=%x\n",CvXSUBANY((CV*)(PL_savestack[i-2].any_ptr)));
-            printf("  xsub=%x\n",CvXSUB((CV*)(PL_savestack[i-2].any_ptr)));
-            printf("  start=%x\n",CvSTART((CV*)(PL_savestack[i-2].any_ptr)));
-            printf("  stash=%x\n",CvSTASH((CV*)(PL_savestack[i-2].any_ptr)));
-            printf("  depth=%x\n",CvDEPTH((CV*)(PL_savestack[i-2].any_ptr)));
-            printf("  padlist=%x\n",CvPADLIST((CV*)(PL_savestack[i-2].any_ptr)));
-            printf("  outside=%x\n",CvOUTSIDE((CV*)(PL_savestack[i-2].any_ptr)));
-            printf("  flags=%x\n",CvFLAGS((CV*)(PL_savestack[i-2].any_ptr)));
-        }
-/*             && CvROOT((CV*)(PL_savestack[i-2].any_ptr)) ) { */
-/*            printf("X=%x",CvROOT((CV*)(PL_savestack[i-2].any_ptr))); */
+            EVIL_REF_DEBUG(printf("PL_compcv=%x\n", PL_savestack[i-2].any_ptr));
+            EVIL_REF_DEBUG(printf("  file=%s\n",CvFILE((CV*)(PL_savestack[i-2].any_ptr))));
+            EVIL_REF_DEBUG(printf("  root=%x\n",CvROOT((CV*)(PL_savestack[i-2].any_ptr))));
+            EVIL_REF_DEBUG(printf("  gv=%x\n",CvGV((CV*)(PL_savestack[i-2].any_ptr))));
+            EVIL_REF_DEBUG(printf("  xsubany=%x\n",CvXSUBANY((CV*)(PL_savestack[i-2].any_ptr))));
+            EVIL_REF_DEBUG(printf("  xsub=%x\n",CvXSUB((CV*)(PL_savestack[i-2].any_ptr))));
+            EVIL_REF_DEBUG(printf("  start=%x\n",CvSTART((CV*)(PL_savestack[i-2].any_ptr))));
+            EVIL_REF_DEBUG(printf("  stash=%x\n",CvSTASH((CV*)(PL_savestack[i-2].any_ptr))));
+            EVIL_REF_DEBUG(printf("  depth=%x\n",CvDEPTH((CV*)(PL_savestack[i-2].any_ptr))));
+            EVIL_REF_DEBUG(printf("  padlist=%x\n",CvPADLIST((CV*)(PL_savestack[i-2].any_ptr))));
+            EVIL_REF_DEBUG(printf("  outside=%x\n",CvOUTSIDE((CV*)(PL_savestack[i-2].any_ptr))));
+            EVIL_REF_DEBUG(printf("  flags=%x\n",CvFLAGS((CV*)(PL_savestack[i-2].any_ptr))));
             /* evil_ref_fixupop(CvROOT((CV*)(PL_savestack[i-2].any_ptr))); */
-/*        } */
+        }
     }
 }
 

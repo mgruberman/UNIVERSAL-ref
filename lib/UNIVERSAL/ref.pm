@@ -13,7 +13,7 @@ sub unimport {
     delete $hooked{ caller() };
 }
 
-our $VERSION = '0.04';
+our $VERSION = '0.05';
 use XSLoader;
 XSLoader::load( 'UNIVERSAL::ref', $VERSION );
 
