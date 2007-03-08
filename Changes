@@ -9,3 +9,6 @@ Revision history for UNIVERSAL::ref
 
 0.03    Mar 7, 2007
         Hey, fixing this was easy!
+
+0.04    Mar 8, 2007
+        Don't bother trying to do impossible things.

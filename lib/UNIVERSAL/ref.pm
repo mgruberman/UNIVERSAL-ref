@@ -1,6 +1,7 @@
 package UNIVERSAL::ref;
-use warnings;
 use strict;
+use warnings;
+use B::Utils;
 
 our %hooked = ( overload => undef );
 
@@ -12,14 +13,26 @@ sub unimport {
     delete $hooked{ caller() };
 }
 
-our $VERSION = '0.03';
+our $VERSION = '0.04';
 use XSLoader;
 XSLoader::load( 'UNIVERSAL::ref', $VERSION );
+
+#my %roots = B::Utils::all_roots();
+#for my $nm ( sort keys %roots ) {
+#    my $op = $roots{$nm};
+##    syswrite STDOUT, "$nm=$op\n";
+#
+#    next unless $$op;
+#    next if $nm eq 'UNIVERSAL::ref::hook';
+#
+#    fixupop($op);
+#}
 
 sub hook {
     return ref $_[0] if 'overload' eq caller;
     return ref $_[0] if exists $hooked{ caller() };
 
+    #    syswrite STDOUT, "OVERLOADING for ".caller()."\n";
     return scalar $_[0]->ref;
 }
 

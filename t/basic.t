@@ -2,7 +2,7 @@
 use strict;
 use warnings;
 use Test::More;
-use vars '$TESTS';
+our $TESTS;
 
 # # ok( not( defined undef ), 'undef is undefined' );
 # # ok( defined 1,            '1 is defined' );
@@ -24,6 +24,26 @@ use vars '$TESTS';
 # #
 # # ok( defined( bless [], 'A' ), 'A has no ->defined method so it is fine' );
 #
+
+TODO: {
+
+    # This test must occur before UNIVERSAL::ref is compiled.
+    BEGIN { $TESTS += 1 }
+    local $TODO = q[Impossible using current technology.];
+
+    # Fixing this requires peeking at the optrees being used by yylex
+    # that haven't been fed to newATTRSUB yet. Is there some ultra
+    # sneaky way to get access to these ops uh... without going
+    # through a CV's ROOT?
+
+    package main;
+    is( ref( bless [], 'PAST' ), 'lie', 'I even fix the past' );
+
+    package PAST;
+    use UNIVERSAL::ref;
+    sub ref {'lie'}
+
+}
 
 {
     BEGIN { $TESTS += 1 }
@@ -77,17 +97,6 @@ use vars '$TESTS';
         qr/\A\QOVERLOADED=ARRAY(0x\E[\da-fA-F]+\)\z/,
         'Overloaded objects stringify normally too'
     );
-}
-
-{
-    BEGIN { $TESTS += 1 }
-
-    package PAST;
-    use UNIVERSAL::ref;
-    sub ref {'PAST'}
-
-    package main;
-    is( ref( bless [], 'PAST' ), 'lie', 'I even fix the past' );
 }
 
 BEGIN { plan( tests => $TESTS ) }
