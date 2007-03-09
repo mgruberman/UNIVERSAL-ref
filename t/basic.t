@@ -58,6 +58,28 @@ TODO: {
     is( CORE::ref( bless [], 'LIAR' ), 'lie', 'Lying 101' );
 }
 
+SKIP: {
+    BEGIN { $TESTS += 1 }
+
+    eval q[use Data::Dumper 'Dumper'];
+    skip( q[Don't have Data::Dumper], 1 )
+        if not defined &Dumper;
+
+    like( Dumper( bless [], 'LIAR' ), qr/LIAR/,
+        'Data::Dumper is unpeturbed' );
+}
+
+SKIP: {
+    BEGIN { $TESTS += 1 }
+
+    eval q[use Data::Dump::Streamer 'Dump'];
+    skip( q[Don't have Data::Dump::Streamer], 1 )
+        if not defined &Dump;
+
+    like( Dump( bless [], 'LIAR' )->Out,
+        qr/LIAR/, 'Data::Dump::Streamer is ok' );
+}
+
 {
     BEGIN { $TESTS += 3 }
 

@@ -15,3 +15,7 @@ Revision history for UNIVERSAL::ref
 
 0.05    Mar 8, 2007
         Don't enable debugging output in production.
+
+0.06    Mar 8, 2007
+        Also test that Data::Dumper and Data::Dump::Streamer are still
+        sane.
