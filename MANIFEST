@@ -7,3 +7,4 @@ META.yml
 README
 ref.xs
 t/basic.t
+typemap
