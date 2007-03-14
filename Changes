@@ -27,3 +27,9 @@ Revision history for UNIVERSAL::ref
         Added B::Utils as a requirement.
         All functions compiled before loading UNIVERSAL::ref are hooked.
         TODO: change the functions that are still being compiled.
+
+0.09    Mar 13, 2007
+        Moved the hook logic into perl from XS.
+        Uses 5.10's ->DOES when possible.
+        Separates out the idea of hooked classes and classes that need
+        the truth.

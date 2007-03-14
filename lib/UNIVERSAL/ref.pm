@@ -3,17 +3,48 @@ use strict;
 use warnings;
 use B::Utils;
 
-our %hooked = ( overload => undef );
+our @hooked;
+our @needs_truth = 'overload';
 
 sub import {
-    $hooked{ caller() } = undef;
+    my $class = caller;
+    my %unique;
+    @hooked = grep { !$unique{$_}++ } ( @hooked, $class );
 }
 
 sub unimport {
-    delete $hooked{ caller() };
+    my $class = caller;
+    @hooked = grep $_ ne $class, @hooked;
 }
 
-our $VERSION = '0.08';
+my $DOES;
+BEGIN { $DOES = UNIVERSAL->can('DOES') ? 'DOES' : 'isa' }
+
+sub hook {
+
+    # Is this object asserting that it is an ancestor of any hooked class?
+    my $is_hooked;
+    my $obj_class = CORE::ref $_[0];
+    for my $class (@hooked) {
+        if ( $class->$DOES($obj_class) ) {
+            $is_hooked = 1;
+            last;
+        }
+    }
+    return $obj_class unless $is_hooked;
+
+    # Does the ref() call originate from any class known to need the truth?
+    my $caller_class = caller;
+    for my $class ( @needs_truth, @hooked ) {
+        if ( $caller_class->$DOES($class) ) {
+            return $obj_class;
+        }
+    }
+
+    return scalar $_[0]->ref;
+}
+
+our $VERSION = '0.09';
 use XSLoader;
 XSLoader::load( 'UNIVERSAL::ref', $VERSION );
 
@@ -21,20 +52,10 @@ my %roots = B::Utils::all_roots();
 for my $nm ( sort keys %roots ) {
     my $op = $roots{$nm};
 
-    #    syswrite STDOUT, "$nm=$op\n";
-
     next unless $$op;
     next if $nm eq 'UNIVERSAL::ref::hook';
 
     fixupop($op);
-}
-
-sub hook {
-    return ref $_[0] if 'overload' eq caller;
-    return ref $_[0] if exists $hooked{ caller() };
-
-    #    syswrite STDOUT, "OVERLOADING for ".caller()."\n";
-    return scalar $_[0]->ref;
 }
 
 q[Let's Make Love and Listen to Death From Above];

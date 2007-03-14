@@ -18,11 +18,6 @@ PP(pp_evil_ref) {
     SV* thing;
     SV* result;
     int count;
-    HV* hooked_hv;
-    char* hooked_class;
-    I32 hooked_class_len;
-    HE* he;
-    bool is_hooked = 0;
 
     if ( OP_REF != PL_op->op_type ) {
         /* WTF called us? Whatever it is, I don't want to screw with it. */
@@ -34,23 +29,6 @@ PP(pp_evil_ref) {
         /* I only mess with objects. */
         return real_pp_ref(aTHX);
     }
-
-    /* Test for this object being hooked. */
-    hooked_hv = get_hv( "UNIVERSAL::ref::hooked", 1 );
-    hv_iterinit( hooked_hv );
-    while( he = hv_iternext(hooked_hv) ) {
-        hooked_class = hv_iterkey( he, &hooked_class_len );
-        if ( sv_derived_from( TOPs, hooked_class ) ) {
-            is_hooked = 1;
-            break;
-        }
-    }
-
-    /* Delegate to non-hooked objects */
-    if ( ! is_hooked ) {
-        return real_pp_ref(aTHX);
-    }
-
 
     /* Start our scope. */
     thing = POPs;
