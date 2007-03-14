@@ -13,20 +13,21 @@ sub unimport {
     delete $hooked{ caller() };
 }
 
-our $VERSION = '0.07';
+our $VERSION = '0.08';
 use XSLoader;
 XSLoader::load( 'UNIVERSAL::ref', $VERSION );
 
-#my %roots = B::Utils::all_roots();
-#for my $nm ( sort keys %roots ) {
-#    my $op = $roots{$nm};
-##    syswrite STDOUT, "$nm=$op\n";
-#
-#    next unless $$op;
-#    next if $nm eq 'UNIVERSAL::ref::hook';
-#
-#    fixupop($op);
-#}
+my %roots = B::Utils::all_roots();
+for my $nm ( sort keys %roots ) {
+    my $op = $roots{$nm};
+
+    #    syswrite STDOUT, "$nm=$op\n";
+
+    next unless $$op;
+    next if $nm eq 'UNIVERSAL::ref::hook';
+
+    fixupop($op);
+}
 
 sub hook {
     return ref $_[0] if 'overload' eq caller;

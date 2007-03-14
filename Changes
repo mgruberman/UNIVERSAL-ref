@@ -22,3 +22,8 @@ Revision history for UNIVERSAL::ref
 
 0.07    Mar 9, 2007
         Added typemap to the distribution.
+
+0.08    Mar 13, 2007
+        Added B::Utils as a requirement.
+        All functions compiled before loading UNIVERSAL::ref are hooked.
+        TODO: change the functions that are still being compiled.
