@@ -4,7 +4,7 @@ use warnings;
 use B::Utils;
 
 our @hooked;
-our @needs_truth = 'overload';
+our @needs_truth = qw(overload);
 
 sub import {
     my $class = caller;
@@ -22,29 +22,44 @@ BEGIN { $DOES = UNIVERSAL->can('DOES') ? 'DOES' : 'isa' }
 
 sub hook {
 
+    # Below, you'll see that there is special dispensation for never
+    # hooking the function named UNIVERSAL::ref::hook. That's why this
+    # ref() is safe from predation by this module.
+
     # Is this object asserting that it is an ancestor of any hooked class?
     my $is_hooked;
-    my $obj_class = CORE::ref $_[0];
-    for my $class (@hooked) {
-        if ( $class->$DOES($obj_class) ) {
-            $is_hooked = 1;
-            last;
-        }
-    }
-    return $obj_class unless $is_hooked;
-
-    # Does the ref() call originate from any class known to need the truth?
+    my $obj_class    = CORE::ref $_[0];
     my $caller_class = caller;
-    for my $class ( @needs_truth, @hooked ) {
+
+    # For any special classes needing truth, just return if we've got
+    # any of those.
+    for my $class (@needs_truth) {
         if ( $caller_class->$DOES($class) ) {
+
+            # CORE::ref
             return $obj_class;
         }
     }
 
-    return scalar $_[0]->ref;
+    #
+    for my $hooked_class (@hooked) {
+
+        # Find only hooked ancestries that pertain this object.
+        next unless $obj_class->$DOES($hooked_class);
+
+        # Check that the call wasn't made from within this object's
+        # ancestry. It has to be possible for an object to ask
+        # questions about itself without getting lies.
+        next if $obj_class->$DOES($caller_class);
+
+        return $_[0]->ref;
+    }
+
+    # CORE::ref
+    return $obj_class;
 }
 
-our $VERSION = '0.09';
+our $VERSION = '0.10';
 use XSLoader;
 XSLoader::load( 'UNIVERSAL::ref', $VERSION );
 
