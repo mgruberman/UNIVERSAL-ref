@@ -121,4 +121,4 @@ SKIP: {
     );
 }
 
-BEGIN { plan( tests => $TESTS ) }
+BEGIN { plan('no_plan') }

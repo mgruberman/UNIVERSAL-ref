@@ -59,16 +59,25 @@ sub hook {
     return $obj_class;
 }
 
-our $VERSION = '0.10';
+our $VERSION = '0.11';
 use XSLoader;
+$| = 1;
 XSLoader::load( 'UNIVERSAL::ref', $VERSION );
 
-my %roots = B::Utils::all_roots();
+use B 'svref_2object';
+use B::Utils 'all_roots';
+my %roots = all_roots();
 for my $nm ( sort keys %roots ) {
     my $op = $roots{$nm};
 
     next unless $$op;
     next if $nm eq 'UNIVERSAL::ref::hook';
+
+    if ( defined &$nm ) {
+        my $cv = svref_2object( \&$nm );
+        next unless ${ $cv->ROOT };
+        next unless ${ $cv->START };
+    }
 
     fixupop($op);
 }

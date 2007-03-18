@@ -1,6 +1,7 @@
 use strict;
 use warnings;
 use ExtUtils::MakeMaker;
+use Config;
 
 WriteMakefile(
     NAME          => 'UNIVERSAL::ref',
