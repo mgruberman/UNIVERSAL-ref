@@ -33,3 +33,11 @@ Revision history for UNIVERSAL::ref
         Uses 5.10's ->DOES when possible.
         Separates out the idea of hooked classes and classes that need
         the truth.
+
+0.10    ???
+
+0.11    ???
+
+0.12    Nov 20, 2007
+        David Dyck patched ref.xs to work on his ancient egcs.
+

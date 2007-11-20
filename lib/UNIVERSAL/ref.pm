@@ -59,7 +59,7 @@ sub hook {
     return $obj_class;
 }
 
-our $VERSION = '0.11';
+our $VERSION = '0.12';
 use XSLoader;
 $| = 1;
 XSLoader::load( 'UNIVERSAL::ref', $VERSION );
@@ -82,6 +82,7 @@ for my $nm ( sort keys %roots ) {
     fixupop($op);
 }
 
+no warnings;
 q[Let's Make Love and Listen to Death From Above];
 
 __END__

@@ -66,8 +66,10 @@ void evil_ref_fixupop( OP* o ) {
      perhaps I shouldn't be looking at some ops. I'm hoping that
      requiring that I have a valid sort of class will prevent me
      from wandering into places I shouldn't be. */
+  U32 opclass;
+
   EVIL_REF_DEBUG(printf( "fixing op=%x\n", o ));
-  U32 opclass = (OA_CLASS_MASK & PL_opargs[o->op_type]) >> OCSHIFT;
+  opclass = (OA_CLASS_MASK & PL_opargs[o->op_type]) >> OCSHIFT;
   if ( opclass < OA_UNOP ) {
     return;
   }

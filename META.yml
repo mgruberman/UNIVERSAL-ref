@@ -1,9 +1,9 @@
 --- #YAML:1.0
 name:                UNIVERSAL-ref
-version:             0.11
+version:             0.12
 abstract:            Turns ref() into a multimethod
 license:             ~
-generated_by:        ExtUtils::MakeMaker version 6.31
+generated_by:        ExtUtils::MakeMaker version 6.36_01
 distribution_type:   module
 requires:     
     B::Utils:                      0
