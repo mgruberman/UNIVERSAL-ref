@@ -41,7 +41,11 @@ Revision history for UNIVERSAL::ref
 0.12    Nov 20, 2007
         David Dyck patched ref.xs to work on his ancient egcs.
 
-...
+0.13
         Rename private functions
         Stop auto-setting $|
         Build with Dist::Zilla
+        Minimum perl, 5.6.2 [RT #52516]
+
+...
+        Minimum perl, 5.6.0 [RT #52516]
