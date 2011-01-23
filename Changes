@@ -43,3 +43,4 @@ Revision history for UNIVERSAL::ref
 
 ...
         Rename private functions
+        Stop auto-setting $|
