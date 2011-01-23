@@ -7,13 +7,13 @@ typedef OP	*B__OP;
 int init_done = 0;
 
 #if 0
-#define EVIL_REF_DEBUG(x) x
+#define UNIVERSAL_REF_DEBUG(x) x
 #else
-#define EVIL_REF_DEBUG(x)
+#define UNIVERSAL_REF_DEBUG(x)
 #endif
 
 OP* (*real_pp_ref)(pTHX);
-PP(pp_evil_ref) { 
+PP(pp_universal_ref) { 
     dSP; dTARG;
     SV* thing;
     SV* result;
@@ -40,9 +40,9 @@ PP(pp_evil_ref) {
     PUSHMARK(SP);
     XPUSHs(thing);
     PUTBACK;
-    count = call_pv( "UNIVERSAL::ref::hook", G_SCALAR );
+    count = call_pv( "UNIVERSAL::ref::_hook", G_SCALAR );
     if ( 1 != count )
-        croak("UNIVERSAL::ref::hook returned %d elements, expected 1", count);
+        croak("UNIVERSAL::ref::_hook returned %d elements, expected 1", count);
 
     /* Get our result and increase its refcount so it won't be reaped
        by closing this scope. */
@@ -61,14 +61,14 @@ PP(pp_evil_ref) {
     RETURN;
 }
 
-void evil_ref_fixupop( OP* o ) {
+void universal_ref_fixupop( OP* o ) {
   /* I'm seeing completely fruity ->op_sibling pointers and I think
      perhaps I shouldn't be looking at some ops. I'm hoping that
      requiring that I have a valid sort of class will prevent me
      from wandering into places I shouldn't be. */
   U32 opclass;
 
-  EVIL_REF_DEBUG(printf( "fixing op=%x\n", o ));
+  UNIVERSAL_REF_DEBUG(printf( "fixing op=%x\n", o ));
   opclass = (OA_CLASS_MASK & PL_opargs[o->op_type]) >> OCSHIFT;
   if ( opclass < OA_UNOP ) {
     return;
@@ -76,26 +76,26 @@ void evil_ref_fixupop( OP* o ) {
   
   /* printf("# OP=%x\n",o); */
   if ( o->op_type == OP_REF || o->op_ppaddr == real_pp_ref ) {
-    EVIL_REF_DEBUG(printf("# XXX\n"));
-    o->op_ppaddr = Perl_pp_evil_ref;
+    UNIVERSAL_REF_DEBUG(printf("# XXX\n"));
+    o->op_ppaddr = Perl_pp_universal_ref;
   }
 
-  EVIL_REF_DEBUG(printf("# op_type=%d\n",o->op_type));
-  EVIL_REF_DEBUG(printf("# opargs=%x\n",PL_opargs[o->op_type] & ~OA_CLASS_MASK));
-  EVIL_REF_DEBUG(printf("# class=%x\n", opclass));
+  UNIVERSAL_REF_DEBUG(printf("# op_type=%d\n",o->op_type));
+  UNIVERSAL_REF_DEBUG(printf("# opargs=%x\n",PL_opargs[o->op_type] & ~OA_CLASS_MASK));
+  UNIVERSAL_REF_DEBUG(printf("# class=%x\n", opclass));
 
   if ( cUNOPx(o)->op_first ) {
-    EVIL_REF_DEBUG(printf("# ->first=%x\n",cUNOPx(o)->op_first));
-    evil_ref_fixupop(cUNOPx(o)->op_first);
+    UNIVERSAL_REF_DEBUG(printf("# ->first=%x\n",cUNOPx(o)->op_first));
+    universal_ref_fixupop(cUNOPx(o)->op_first);
   }
 
   if ( o->op_sibling ) {
-    EVIL_REF_DEBUG(printf("# ->sibling=%x\n",o->op_sibling));
-    evil_ref_fixupop(o->op_sibling);
+    UNIVERSAL_REF_DEBUG(printf("# ->sibling=%x\n",o->op_sibling));
+    universal_ref_fixupop(o->op_sibling);
   }
 }
 
-void evil_ref_fixupworld () {
+void universal_ref_fixupworld () {
     I32 i = 0;
 
     /* TODO: This finds all existing code and replaces ppaddr with the
@@ -104,20 +104,20 @@ void evil_ref_fixupworld () {
     /* Fixup stuff that exists. */
 /*
     if ( PL_main_root ) {
-        EVIL_REF_DEBUG(printf("# FIXING PL_main_root\n"));
-        evil_ref_fixupop( PL_main_root );
+        UNIVERSAL_REF_DEBUG(printf("# FIXING PL_main_root\n"));
+        universal_ref_fixupop( PL_main_root );
     }
     if ( PL_eval_root ) {
-        EVIL_REF_DEBUG(printf("# FIXING PL_eval_root\n"));
-        evil_ref_fixupop(PL_eval_root);
+        UNIVERSAL_REF_DEBUG(printf("# FIXING PL_eval_root\n"));
+        universal_ref_fixupop(PL_eval_root);
     }
     if ( PL_main_cv && CvROOT(PL_main_cv) ) {
-        EVIL_REF_DEBUG(printf("# FIXING PL_main_cv\n"));
-        evil_ref_fixupop(CvROOT(PL_main_cv));
+        UNIVERSAL_REF_DEBUG(printf("# FIXING PL_main_cv\n"));
+        universal_ref_fixupop(CvROOT(PL_main_cv));
     }
     if ( PL_compcv && CvROOT(PL_compcv) ) {
-        EVIL_REF_DEBUG(printf("# FIXING PL_compcv\n"));
-        evil_ref_fixupop(CvROOT(PL_compcv));
+        UNIVERSAL_REF_DEBUG(printf("# FIXING PL_compcv\n"));
+        universal_ref_fixupop(CvROOT(PL_compcv));
     }
 */
 
@@ -127,24 +127,24 @@ void evil_ref_fixupworld () {
              && (    &PL_compcv  == PL_savestack[i-1].any_ptr
                   || &PL_main_cv == PL_savestack[i-1].any_ptr )
              && PL_savestack[i-2].any_ptr ) {
-            EVIL_REF_DEBUG(printf("# PL_compcv=%x\n", PL_savestack[i-2].any_ptr));
-            EVIL_REF_DEBUG(printf("#   file=%s\n",CvFILE((CV*)(PL_savestack[i-2].any_ptr))));
-            EVIL_REF_DEBUG(printf("#   root=%x\n",CvROOT((CV*)(PL_savestack[i-2].any_ptr))));
-            EVIL_REF_DEBUG(printf("#   gv=%x\n",CvGV((CV*)(PL_savestack[i-2].any_ptr))));
-            EVIL_REF_DEBUG(printf("#   xsubany=%x\n",CvXSUBANY((CV*)(PL_savestack[i-2].any_ptr))));
-            EVIL_REF_DEBUG(printf("#   xsub=%x\n",CvXSUB((CV*)(PL_savestack[i-2].any_ptr))));
-            EVIL_REF_DEBUG(printf("#   start=%x\n",CvSTART((CV*)(PL_savestack[i-2].any_ptr))));
-            EVIL_REF_DEBUG(printf("#   stash=%x\n",CvSTASH((CV*)(PL_savestack[i-2].any_ptr))));
-            EVIL_REF_DEBUG(printf("#   depth=%x\n",CvDEPTH((CV*)(PL_savestack[i-2].any_ptr))));
-            EVIL_REF_DEBUG(printf("#   padlist=%x\n",CvPADLIST((CV*)(PL_savestack[i-2].any_ptr))));
-            EVIL_REF_DEBUG(printf("#   outside=%x\n",CvOUTSIDE((CV*)(PL_savestack[i-2].any_ptr))));
-            EVIL_REF_DEBUG(printf("#   flags=%x\n",CvFLAGS((CV*)(PL_savestack[i-2].any_ptr)))); */
-            /* evil_ref_fixupop(CvROOT((CV*)(PL_savestack[i-2].any_ptr))); */
+            UNIVERSAL_REF_DEBUG(printf("# PL_compcv=%x\n", PL_savestack[i-2].any_ptr));
+            UNIVERSAL_REF_DEBUG(printf("#   file=%s\n",CvFILE((CV*)(PL_savestack[i-2].any_ptr))));
+            UNIVERSAL_REF_DEBUG(printf("#   root=%x\n",CvROOT((CV*)(PL_savestack[i-2].any_ptr))));
+            UNIVERSAL_REF_DEBUG(printf("#   gv=%x\n",CvGV((CV*)(PL_savestack[i-2].any_ptr))));
+            UNIVERSAL_REF_DEBUG(printf("#   xsubany=%x\n",CvXSUBANY((CV*)(PL_savestack[i-2].any_ptr))));
+            UNIVERSAL_REF_DEBUG(printf("#   xsub=%x\n",CvXSUB((CV*)(PL_savestack[i-2].any_ptr))));
+            UNIVERSAL_REF_DEBUG(printf("#   start=%x\n",CvSTART((CV*)(PL_savestack[i-2].any_ptr))));
+            UNIVERSAL_REF_DEBUG(printf("#   stash=%x\n",CvSTASH((CV*)(PL_savestack[i-2].any_ptr))));
+            UNIVERSAL_REF_DEBUG(printf("#   depth=%x\n",CvDEPTH((CV*)(PL_savestack[i-2].any_ptr))));
+            UNIVERSAL_REF_DEBUG(printf("#   padlist=%x\n",CvPADLIST((CV*)(PL_savestack[i-2].any_ptr))));
+            UNIVERSAL_REF_DEBUG(printf("#   outside=%x\n",CvOUTSIDE((CV*)(PL_savestack[i-2].any_ptr))));
+            UNIVERSAL_REF_DEBUG(printf("#   flags=%x\n",CvFLAGS((CV*)(PL_savestack[i-2].any_ptr)))); */
+            /* universal_ref_fixupop(CvROOT((CV*)(PL_savestack[i-2].any_ptr))); */
 /*        }
     } */
 }
 
-MODULE = UNIVERSAL::ref	PACKAGE = UNIVERSAL::ref PREFIX = evil_ref_
+MODULE = UNIVERSAL::ref	PACKAGE = UNIVERSAL::ref PREFIX = universal_ref_
 
 PROTOTYPES: ENABLE
 
@@ -152,13 +152,18 @@ BOOT:
 if ( ! init_done++  ) {
     /* Is this a race in threaded perl? */
     real_pp_ref = PL_ppaddr[OP_REF];
-    PL_ppaddr[OP_REF] = Perl_pp_evil_ref;
-/*    evil_ref_fixupworld(); */
+    PL_ppaddr[OP_REF] = Perl_pp_universal_ref;
+/*    universal_ref_fixupworld(); */
 }
 
 void
-evil_ref_fixupop( o )
-    B::OP o
+universal_ref__fixupop( o )
+        B::OP o
+    CODE:
+        universal_ref_fixupop( o );
 
 void
-evil_ref_fixupworld()
+universal_ref__fixupworld()
+    CODE:
+        universal_ref_fixupworld();
+

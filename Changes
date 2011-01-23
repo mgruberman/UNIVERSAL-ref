@@ -41,3 +41,5 @@ Revision history for UNIVERSAL::ref
 0.12    Nov 20, 2007
         David Dyck patched ref.xs to work on his ancient egcs.
 
+...
+        Rename private functions

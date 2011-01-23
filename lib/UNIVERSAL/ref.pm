@@ -20,10 +20,10 @@ sub unimport {
 my $DOES;
 BEGIN { $DOES = UNIVERSAL->can('DOES') ? 'DOES' : 'isa' }
 
-sub hook {
+sub _hook {
 
     # Below, you'll see that there is special dispensation for never
-    # hooking the function named UNIVERSAL::ref::hook. That's why this
+    # hooking the function named UNIVERSAL::ref::_hook. That's why this
     # ref() is safe from predation by this module.
 
     # Is this object asserting that it is an ancestor of any hooked class?
@@ -71,7 +71,7 @@ for my $nm ( sort keys %roots ) {
     my $op = $roots{$nm};
 
     next unless $$op;
-    next if $nm eq 'UNIVERSAL::ref::hook';
+    next if $nm eq 'UNIVERSAL::ref::_hook';
 
     if ( defined &$nm ) {
         my $cv = svref_2object( \&$nm );
@@ -79,7 +79,7 @@ for my $nm ( sort keys %roots ) {
         next unless ${ $cv->START };
     }
 
-    fixupop($op);
+    _fixupop($op);
 }
 
 no warnings;
