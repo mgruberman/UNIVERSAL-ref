@@ -59,10 +59,9 @@ sub _hook {
     return $obj_class;
 }
 
-our $VERSION = '0.12';
 use XSLoader;
 $| = 1;
-XSLoader::load( 'UNIVERSAL::ref', $VERSION );
+XSLoader::load( 'UNIVERSAL::ref', $UNIVERSAL::ref::VERSION );
 
 use B 'svref_2object';
 use B::Utils 'all_roots';

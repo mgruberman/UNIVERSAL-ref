@@ -44,3 +44,4 @@ Revision history for UNIVERSAL::ref
 ...
         Rename private functions
         Stop auto-setting $|
+        Build with Dist::Zilla
